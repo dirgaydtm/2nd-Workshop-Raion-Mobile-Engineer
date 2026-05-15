@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:workshop_1/miniproject/detail_page.dart';
+import 'package:workshop_1/miniproject2/providers/favorite_provider.dart';
+import 'package:workshop_1/miniproject2/screens/detail_page.dart';
 
-class ProductCard extends StatefulWidget {
+// StatefulWidget → ConsumerStatefulWidget supaya bisa akses ref
+class ProductCard extends ConsumerStatefulWidget {
   final String title;
   final String description;
   final String image;
   final String rating;
-  final bool isFavorite;
 
   const ProductCard({
     super.key,
@@ -15,33 +17,22 @@ class ProductCard extends StatefulWidget {
     required this.description,
     required this.image,
     required this.rating,
-    required this.isFavorite,
   });
 
   @override
-  State<ProductCard> createState() => _ProductCardState();
+  ConsumerState<ProductCard> createState() => _ProductCardState();
 }
 
-class _ProductCardState extends State<ProductCard> {
-  late bool isFavorite; // ini state buat nyimpen status favorite
-
-  @override
-  void initState() {
-    super.initState();
-    isFavorite =
-        widget.isFavorite; // inisialisasi state dengan nilai dari constructor
-  }
+class _ProductCardState extends ConsumerState<ProductCard> {
 
   void toggleFavorite() {
-    // fungsi buat toggle status favorite
-    // bakalan rebuild widget setiap kali isFavorite berubah
-    setState(() {
-      isFavorite = !isFavorite;
-    });
+    ref.read(favoriteProvider.notifier).toggle(widget.title);
   }
 
   @override
   Widget build(BuildContext context) {
+    final isFavorite = ref.watch(favoriteProvider).contains(widget.title);
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -52,11 +43,6 @@ class _ProductCardState extends State<ProductCard> {
               description: widget.description,
               image: widget.image,
               rating: widget.rating,
-              isFavorite: isFavorite,
-
-              // passing fungsi toggleFavorite ke DetailPage
-              // mirip lambda onClick kalo di kotlin
-              onClickFavorite: () => toggleFavorite(),
             ),
           ),
         );

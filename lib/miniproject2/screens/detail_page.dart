@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:workshop_1/miniproject2/providers/favorite_provider.dart';
 
-class DetailPage extends StatefulWidget {
+class DetailPage extends ConsumerStatefulWidget {
   final String title;
   final String description;
   final String image;
   final String rating;
-  final bool isFavorite;
-  final VoidCallback onClickFavorite; // ini mirip lambda onClick di kotlin, buat passing fungsi dari parent widget
 
   const DetailPage({
     super.key,
@@ -15,32 +15,22 @@ class DetailPage extends StatefulWidget {
     required this.description,
     required this.image,
     required this.rating,
-    required this.isFavorite,
-    required this.onClickFavorite,
   });
 
   @override
-  State<DetailPage> createState() => _DetailPageState();
+  ConsumerState<DetailPage> createState() => _DetailPageState();
 }
 
-class _DetailPageState extends State<DetailPage> {
-  late bool isFavorite; // ini state buat nyimpen status favorite, biar bisa diubah di DetailPage tanpa harus langsung ngubah di ProductCard
-
-  @override
-  void initState() {
-    super.initState();
-    isFavorite = widget.isFavorite; // inisialisasi state dengan nilai dari constructor
-  }
+class _DetailPageState extends ConsumerState<DetailPage> {
 
   void toggleFavorite() {
-    setState(() {
-      isFavorite = !isFavorite;
-    });
-    widget.onClickFavorite(); // panggil fungsi yang dipassing dari parent widget (ProductCard) buat ngubah status favorite di ProductCard
+    ref.read(favoriteProvider.notifier).toggle(widget.title);
   }
 
   @override
   Widget build(BuildContext context) {
+    final isFavorite = ref.watch(favoriteProvider).contains(widget.title);
+
     return Scaffold(
       body: Column(
         crossAxisAlignment: .start,
